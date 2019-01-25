@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Vue.js</title>
+    <script src="xue.js"></script>
+  </head>
+  <body>
+
+    <div>
+      <h2>Valor: {{ valor.muy.anidado.val }}</h2>      
+    </div>
+
+    <div id="app">
+      <h2>Valor: {{ valor.muy.anidado.val }}</h2>
+    </div>
+
+    <script>
+      window.xm = new Xue({
+        el: '#app',
+        data: {
+          user: {
+            name: 'Eliseo'
+          },
+          valor: {
+            muy: {
+              anidado: {
+                val: 'Hola'
+              }
+            }
+          },
+          age: 21,
+          vari: 'x valor'
+        }
+      })
+    </script>
+  </body>
+</html>
