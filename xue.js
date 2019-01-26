@@ -1,5 +1,5 @@
 
-;(function (root, factory) {
+; (function (root, factory) {
   root.Xue = factory()
 })(this /* window */, function () {
 
@@ -11,26 +11,24 @@
   )
 
   const isObject = node => (
-    node !== null &&
-    typeof node === 'object'
+    typeof node === 'object' &&
+    node !== null
   )
 
-  function Xue (conf) {
+  function Xue(conf) {
     this.$el = document.querySelector(conf.el)
 
-    for (const key in conf.data) {
+    for (const key in conf.data)
       this[key] = conf.data[key]
-    }
-
-    for (const key in conf.data) {
-      this.reactiveBinder(this, key)
-    }
 
     this.walkInDom(this.$el)
+
+    for (const key in conf.data)
+      this.reactiveBinder(this, key)
   }
 
-  Xue.prototype.dispatchChange = function (nodeKey) {
-    const { node, text } = fakeVirtualDOM[nodeKey]
+  Xue.prototype.dispatchReactiveChange = function (key) {
+    const { node, text } = fakeVirtualDOM[key]
     node.textContent = this.getFinalText(text)
   }
 
@@ -38,20 +36,19 @@
     let nodeValue = parent[child]
 
     if (isObject(parent) && isObject(nodeValue)) {
-      
-      for (const subChildNode in nodeValue)
-        this.reactiveBinder(nodeValue, subChildNode)
-
+      for (const key in nodeValue) {
+        this.reactiveBinder(nodeValue, key)
+      }
     } else {
       Object.defineProperty(parent, child, {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
           return nodeValue
         },
         set: (newValue) => {
           nodeValue = newValue
-          this.dispatchChange(child)
+          this.dispatchReactiveChange(child)
         }
       })
     }
@@ -68,28 +65,27 @@
   }
 
   Xue.prototype.getFinalText = function (textNode) {
-    
     return (textNode.textContent || textNode)
       .replace(/{{ *([a-z|A-Z|\.]+) *}}/g, (match, extract) => {
 
-      extract = extract.split('.')
-      let value = this
-      let lastKey
+        extract = extract.split('.')
+        let value = this
+        let lastKey
 
-      extract.forEach(key => {
-        value = value[key]
-        lastKey = key
-      })
+        extract.forEach(key => {
+          value = value[key]
+          lastKey = key
+        })
 
-      if (textNode.textContent) {
-        fakeVirtualDOM[lastKey] = {
-          text: textNode.textContent,
-          node: textNode
+        if (textNode.textContent) {
+          fakeVirtualDOM[lastKey] = {
+            node: textNode,
+            text: textNode.textContent,
+          }
         }
-      }
 
-      return value
-    })
+        return value
+      })
   }
 
   return Xue
